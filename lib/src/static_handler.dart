@@ -1,5 +1,6 @@
 library shelf_static.staic_handler;
 
+import 'dart:async';
 import 'dart:io';
 
 import 'package:http_parser/http_parser.dart';
@@ -38,80 +39,126 @@ Handler createStaticHandler(String fileSystemPath,
   }
 
   return (Request request) {
-    var segs = [fileSystemPath]..addAll(request.url.pathSegments);
-
+  return new Future.microtask(() {
+    var segs = [
+        fileSystemPath
+    ]
+        ..addAll(request.url.pathSegments);
     var fsPath = p.joinAll(segs);
-
-    var entityType = FileSystemEntity.typeSync(fsPath, followLinks: true);
-
-    File file = null;
-
-    if (entityType == FileSystemEntityType.FILE) {
-      file = new File(fsPath);
-    } else if (entityType == FileSystemEntityType.DIRECTORY) {
-      file = _tryDefaultFile(fsPath, defaultDocument);
-    }
-
-    if (file == null) {
-      return new Response.notFound('Not Found');
-    }
-
-    if (!serveFilesOutsidePath) {
-      var resolvedPath = file.resolveSymbolicLinksSync();
-
-      // Do not serve a file outside of the original fileSystemPath
-      if (!p.isWithin(fileSystemPath, resolvedPath)) {
-        return new Response.notFound('Not Found');
+    return FileSystemEntity.type(fsPath, followLinks: true).then((x0) {
+      var entityType = x0;
+      var file = null;
+      join0() {
+        join1() {
+          join2() {
+            join3() {
+              return file.stat().then((x1) {
+                var fileStat = x1;
+                var ifModifiedSince = request.ifModifiedSince;
+                join4() {
+                  var headers = {
+                      HttpHeaders.CONTENT_LENGTH: fileStat.size.toString(),
+                      HttpHeaders.LAST_MODIFIED: formatHttpDate(fileStat.changed)
+                  };
+                  var contentType = mime.lookupMimeType(file.path);
+                  join5() {
+                    return new Response.ok(file.openRead(), headers: headers);
+                  }
+                  if (contentType != null) {
+                    headers[HttpHeaders.CONTENT_TYPE] = contentType;
+                    return join5();
+                  } else {
+                    return join5();
+                  }
+                }
+                if (ifModifiedSince != null) {
+                  var fileChangeAtSecResolution = toSecondResolution(fileStat.changed);
+                  join6() {
+                    return join4();
+                  }
+                  if (!fileChangeAtSecResolution.isAfter(ifModifiedSince)) {
+                    return new Response.notModified();
+                  } else {
+                    return join6();
+                  }
+                } else {
+                  return join4();
+                }
+              });
+            }
+            if (entityType == FileSystemEntityType.DIRECTORY && !request.url.path.endsWith('/')) {
+              var uri = request.requestedUri;
+              assert(!uri.path.endsWith('/'));
+              var location = new Uri(scheme: uri.scheme, userInfo: uri.userInfo, host: uri.host, port: uri.port, path: uri.path + '/', query: uri.query);
+              return new Response.movedPermanently(location.toString());
+            } else {
+              return join3();
+            }
+          }
+          if (!serveFilesOutsidePath) {
+            return file.resolveSymbolicLinks().then((x2) {
+              var resolvedPath = x2;
+              join7() {
+                return join2();
+              }
+              if (!p.isWithin(fileSystemPath, resolvedPath)) {
+                return new Response.notFound('Not Found');
+              } else {
+                return join7();
+              }
+            });
+          } else {
+            return join2();
+          }
+        }
+        if (file == null) {
+          return new Response.notFound('Not Found');
+        } else {
+          return join1();
+        }
       }
-    }
-
-    if (entityType == FileSystemEntityType.DIRECTORY &&
-        !request.url.path.endsWith('/')) {
-      // when serving the default document for a directory, if the requested
-      // path doesn't end with '/', redirect to the path with a trailing '/'
-      var uri = request.requestedUri;
-      assert(!uri.path.endsWith('/'));
-      var location = new Uri(scheme: uri.scheme, userInfo: uri.userInfo,
-          host: uri.host, port: uri.port, path: uri.path + '/',
-          query: uri.query);
-
-      return new Response.movedPermanently(location.toString());
-    }
-
-    var fileStat = file.statSync();
-    var ifModifiedSince = request.ifModifiedSince;
-
-    if (ifModifiedSince != null) {
-      var fileChangeAtSecResolution = toSecondResolution(fileStat.changed);
-      if (!fileChangeAtSecResolution.isAfter(ifModifiedSince)) {
-        return new Response.notModified();
+      if (entityType == FileSystemEntityType.FILE) {
+        file = new File(fsPath);
+        return join0();
+      } else {
+        join8() {
+          return join0();
+        }
+        if (entityType == FileSystemEntityType.DIRECTORY) {
+          return _tryDefaultFile(fsPath, defaultDocument).then((x3) {
+            file = x3;
+            return join8();
+          });
+        } else {
+          return join8();
+        }
       }
-    }
-
-    var headers = <String, String>{
-      HttpHeaders.CONTENT_LENGTH: fileStat.size.toString(),
-      HttpHeaders.LAST_MODIFIED: formatHttpDate(fileStat.changed)
-    };
-
-    var contentType = mime.lookupMimeType(file.path);
-    if (contentType != null) {
-      headers[HttpHeaders.CONTENT_TYPE] = contentType;
-    }
-
-    return new Response.ok(file.openRead(), headers: headers);
-  };
+    });
+  });
+};
 }
 
-File _tryDefaultFile(String dirPath, String defaultFile) {
-  if (defaultFile == null) return null;
-
-  var filePath = p.join(dirPath, defaultFile);
-
-  var file = new File(filePath);
-
-  if (file.existsSync()) {
-    return file;
-  }
-
-  return null;
+Future<File> _tryDefaultFile(String dirPath, String defaultFile) {
+  return new Future.microtask(() {
+    join0() {
+      var filePath = p.join(dirPath, defaultFile);
+      var file = new File(filePath);
+      return file.exists().then((x0) {
+        join1() {
+          return null;
+        }
+        if (x0) {
+          return file;
+        } else {
+          return join1();
+        }
+      });
+    }
+    if (defaultFile == null) {
+      return null;
+    } else {
+      return join0();
+    }
+  });
 }
+
