@@ -1,0 +1,70 @@
+html - w/out async code
+
+Running 10s test @ http://localhost:8080/
+  4 threads and 20 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     4.00ms  275.78us   7.26ms   89.05%
+    Req/Sec     1.32k   189.62     1.67k    62.94%
+  49721 requests in 10.00s, 23.66MB read
+Requests/sec:   4972.01
+Transfer/sec:      2.37MB
+
+
+html - w/ async code
+
+Running 10s test @ http://localhost:8080/
+  4 threads and 20 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     4.62ms  304.19us   7.21ms   87.20%
+    Req/Sec     1.14k   147.25     1.67k    78.29%
+  43073 requests in 10.00s, 20.50MB read
+Requests/sec:   4307.43
+Transfer/sec:      2.05MB
+
+
+const - w/out async code
+
+Running 10s test @ http://localhost:8080/const.txt
+  4 threads and 20 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     5.07ms  425.62us   7.87ms   85.12%
+    Req/Sec     1.04k   108.27     1.55k    80.88%
+  39453 requests in 10.00s, 1.67GB read
+Requests/sec:   3945.15
+Transfer/sec:    170.79MB
+const - fastest w/ async code
+
+Running 10s test @ http://localhost:8080/const.txt
+  4 threads and 20 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     5.21ms  707.94us  16.71ms   91.93%
+    Req/Sec     1.01k   118.14     1.40k    83.98%
+  38500 requests in 10.00s, 1.63GB read
+Requests/sec:   3849.84
+Transfer/sec:    166.66MB
+
+
+
+
+
+p&p - w/out async
+
+Running 10s test @ http://localhost:8080/pride_and_prejudice.txt
+  4 threads and 20 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency    22.80ms    3.09ms  36.33ms   73.08%
+    Req/Sec   221.43     36.09   272.00     48.96%
+  8779 requests in 10.00s, 5.88GB read
+Requests/sec:    877.85
+Transfer/sec:    601.62MB
+
+p&p - w/ async
+
+Running 10s test @ http://localhost:8080/pride_and_prejudice.txt
+  4 threads and 20 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency    23.17ms    3.61ms  38.01ms   81.24%
+    Req/Sec   220.02     38.00   267.00     41.00%
+  8727 requests in 10.00s, 5.84GB read
+Requests/sec:    872.68
+Transfer/sec:    598.11MB
