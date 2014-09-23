@@ -73,13 +73,10 @@ Handler createStaticHandler(String fileSystemPath,
                 }
                 if (ifModifiedSince != null) {
                   var fileChangeAtSecResolution = toSecondResolution(fileStat.changed);
-                  join6() {
-                    return join4();
-                  }
                   if (!fileChangeAtSecResolution.isAfter(ifModifiedSince)) {
                     return new Response.notModified();
                   } else {
-                    return join6();
+                    return join4();
                   }
                 } else {
                   return join4();
@@ -121,16 +118,13 @@ Handler createStaticHandler(String fileSystemPath,
         file = new File(fsPath);
         return join0();
       } else {
-        join8() {
-          return join0();
-        }
         if (entityType == FileSystemEntityType.DIRECTORY) {
           return _tryDefaultFile(fsPath, defaultDocument).then((x3) {
             file = x3;
-            return join8();
+            return join0();
           });
         } else {
-          return join8();
+          return join0();
         }
       }
     });
@@ -144,13 +138,10 @@ Future<File> _tryDefaultFile(String dirPath, String defaultFile) {
       var filePath = p.join(dirPath, defaultFile);
       var file = new File(filePath);
       return file.exists().then((x0) {
-        join1() {
-          return null;
-        }
         if (x0) {
           return file;
         } else {
-          return join1();
+          return null;
         }
       });
     }
